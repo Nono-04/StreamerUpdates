@@ -9,7 +9,8 @@ streamer = os.getenv('STREAMER')
 streamerInChat = str(os.getenv('STREAMER_IN_CHAT')).split(',')
 chatMessagesWebhook = os.getenv('CHAT_MESSAGES_WEBHOOK')
 otherStreamerWebhook = os.getenv('OTHER_STREAMERS_WEBHOOK')
-accessToken = os.getenv('ACCESS_TOKEN')
+accessToken = "sdgf0yaagyx1umwjlbb7syh0czexb4"
+clientSecret = "8l1g01lh2go6xmeopu9ytck2tbwve4"
 
 async def send_embed_webhook(webhook, title: str, description: str, color: int):
     hook = AsyncDiscordWebhook(url=webhook, embeds=[{"title": title, "description": description, "color": color}])
@@ -20,14 +21,11 @@ async def send_message_webhook(webhook, message: str):
     hook = AsyncDiscordWebhook(url=webhook, content=message)
     await hook.execute()
 
-
 oldData = {
     "title": "",
     "game": "",
     "live": None,
 }
-
-print(accessToken)
 
 class Bot(commands.Bot):
 
@@ -35,7 +33,7 @@ class Bot(commands.Bot):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         # prefix can be a callable, which returns a list of strings or a string...
         # initial_channels can also be a callable which returns a list of strings...
-        super().__init__(token=accessToken, initial_channels=[streamer], prefix="yourmom!")
+        super().__init__(token=accessToken, initial_channels=[streamer], prefix="yourmom!", client_secret=clientSecret)
 
     async def event_ready(self):
         # Notify us when everything is ready!
