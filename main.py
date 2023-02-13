@@ -10,7 +10,7 @@ streamerInChat = str(os.getenv('STREAMER_IN_CHAT')).split(',')
 
 chatMessagesWebhook = os.getenv('CHAT_MESSAGES_WEBHOOK')
 otherStreamerWebhook = os.getenv('OTHER_STREAMERS_WEBHOOK')
-streamerInOtherChat = os.getenv('STREAMER_IN_OTHER_CHAT_WEBHOOK')
+streamerInOtherChatWebhook = os.getenv('STREAMER_IN_OTHER_CHAT_WEBHOOK')
 
 accessToken = "sdgf0yaagyx1umwjlbb7syh0czexb4"
 clientSecret = "8l1g01lh2go6xmeopu9ytck2tbwve4"
@@ -54,11 +54,12 @@ class Bot(commands.Bot):
             if message.channel.name.lower() == streamer.lower():
                 await send_message_webhook(chatMessagesWebhook, f"{message.content}")
             else:
-                await send_message_webhook(streamerInOtherChat, f"{message.channel.name}: {message.content}")
+                await send_message_webhook(streamerInOtherChatWebhook, f"{message.channel.name}: {message.content}")
 
         if message.channel.name.lower() == streamer.lower():
             if message.author.name.lower() in streamerInChat:
-                await send_message_webhook(streamerInChat, f"{message.author.name}: {message.content}")
+                await send_message_webhook(otherStreamerWebhook, f"{message.author.name}: {message.content}")
+
     async def subscribe_channel_update(self, data):
         if oldData["title"] == "":
             oldData["title"] = data.title
