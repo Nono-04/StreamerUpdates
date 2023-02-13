@@ -27,6 +27,7 @@ oldData = {
     "live": None,
 }
 
+print(accessToken)
 
 class Bot(commands.Bot):
 
