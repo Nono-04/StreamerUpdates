@@ -48,7 +48,10 @@ class Bot(commands.Bot):
             return
 
         if message.author.name.lower() == streamer.lower():
-            await send_message_webhook(chatMessagesWebhook, f"{message.content}")
+            if message.channel.name.lower() != streamer.lower():
+                await send_message_webhook(otherStreamerWebhook, f"{message.author.name}: {message.content}")
+            else:
+                await send_message_webhook(chatMessagesWebhook, f"{message.content}")
 
         if message.author.name.lower() in streamerInChat:
             await send_message_webhook(otherStreamerWebhook, f"{message.author.name}: {message.content}")
