@@ -1,11 +1,8 @@
-import discord
-import twitchio
-from twitchio.ext import commands
 import os
-from dotenv import load_dotenv
-import aiohttp
-import asyncio
+
 from discord_webhook import AsyncDiscordWebhook
+from dotenv import load_dotenv
+from twitchio.ext import commands
 
 load_dotenv()
 streamer = os.getenv('STREAMER')
