@@ -68,7 +68,7 @@ class Bot(commands.Bot):
                 await send_message_webhook(otherStreamerWebhook, f"{message.content}",
                                            username=message.author.display_name, avatar_url=avatar)
 
-    @routines.routine(seconds=5)
+    @routines.routine(seconds=30)
     async def check_stream(self):
         streamerData = await self.fetch_channel(streamer)
 
