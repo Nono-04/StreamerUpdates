@@ -1,8 +1,9 @@
 import os
 
+import twitchio
 from discord_webhook import AsyncDiscordWebhook
 from dotenv import load_dotenv
-from twitchio.ext import commands
+from twitchio.ext import eventsub, commands, routines
 
 load_dotenv()
 streamer = os.getenv('STREAMER')
@@ -15,20 +16,22 @@ streamerInOtherChatWebhook = os.getenv('STREAMER_IN_OTHER_CHAT_WEBHOOK')
 accessToken = "sdgf0yaagyx1umwjlbb7syh0czexb4"
 clientSecret = "8l1g01lh2go6xmeopu9ytck2tbwve4"
 
+oldData = {
+    "title": None,
+    "game": None,
+    "live": None,
+}
+
+
 async def send_embed_webhook(webhook, title: str, description: str, color: int):
     hook = AsyncDiscordWebhook(url=webhook, embeds=[{"title": title, "description": description, "color": color}])
     await hook.execute()
 
 
-async def send_message_webhook(webhook, message: str):
-    hook = AsyncDiscordWebhook(url=webhook, content=message)
+async def send_message_webhook(webhook, message: str, username="", avatar_url: str = ""):
+    hook = AsyncDiscordWebhook(url=webhook, content=message, username=username, avatar_url=avatar_url)
     await hook.execute()
 
-oldData = {
-    "title": "",
-    "game": "",
-    "live": None,
-}
 
 class Bot(commands.Bot):
 
@@ -51,43 +54,45 @@ class Bot(commands.Bot):
             return
 
         if message.author.name.lower() == streamer.lower():
+            avatar = (await message.author.user()).profile_image
             if message.channel.name.lower() == streamer.lower():
-                await send_message_webhook(chatMessagesWebhook, f"{message.content}")
+                await send_message_webhook(chatMessagesWebhook, f"{message.content}",
+                                           username=message.author.display_name, avatar_url=avatar)
             else:
-                await send_message_webhook(streamerInOtherChatWebhook, f"{message.channel.name}: {message.content}")
+                await send_message_webhook(streamerInOtherChatWebhook, f"{message.channel.name}: {message.content}",
+                                           username=message.author.name, avatar_url=avatar)
 
         if message.channel.name.lower() == streamer.lower():
             if message.author.name.lower() in streamerInChat:
-                await send_message_webhook(otherStreamerWebhook, f"{message.author.name}: {message.content}")
+                avatar = (await message.author.user()).profile_image
+                await send_message_webhook(otherStreamerWebhook, f"{message.content}",
+                                           username=message.author.display_name, avatar_url=avatar)
 
-    async def subscribe_channel_update(self, data):
-        if oldData["title"] == "":
-            oldData["title"] = data.title
-        if oldData["game"] == "":
-            oldData["game"] = data.category_name
+    @routines.routine(seconds=5)
+    async def check_stream(self):
+        streamerData = await self.fetch_channel(streamer)
 
-        if oldData["title"] != data.title:
-            await send_embed_webhook(otherStreamerWebhook, f"{data.broadcaster_name} changed their title!",
-                                     f"**Old Title:** {oldData['title']}\n**New Title:** {data.title}", 0x00ff00)
-            oldData["title"] = data.title
+        if oldData.get("title") is None:
+            oldData["title"] = streamerData.title
 
-        if oldData["game"] != data.category_name:
-            await send_embed_webhook(otherStreamerWebhook, f"{data.broadcaster_name} changed their game!",
-                                     f"**Old Game:** {oldData['game']}\n**New Game:** {data.category_name}", 0x00ff00)
-            oldData["game"] = data.category_name
+        if oldData.get("game") is None:
+            oldData["game"] = streamerData.game_name
 
-    async def subscribe_stream_online(self, data):
-        if data.broadcaster.name.lower() != streamer.lower():
-            return
+        if oldData.get("title") != streamerData.title:
+            try:
+                await send_embed_webhook(chatMessagesWebhook, "Title changed",
+                                         f"Old title: {oldData['title']}\nNew title: {streamerData.title}", 0x00ff00)
+            except:
+                oldData["title"] = streamerData.title
 
-        if oldData["live"] == None:
-            oldData["live"] = data.type
-
-        if data.type == "live" and oldData["live"] != data.type:
-            await send_embed_webhook(otherStreamerWebhook, f"{data.broadcaster_name} is now live!",
-                                     f"**Game:** {data.category_name}\n**Title:** {data.title}", 0x00ff00)
-            oldData["live"] = data.type
+        if oldData.get("game") != streamerData.game_name:
+            try:
+                await send_embed_webhook(chatMessagesWebhook, "Game changed", f"New game: {streamerData.game_name}",
+                                         0x00ff00)
+            except:
+                oldData["game"] = streamerData.game_name
 
 
 bot = Bot()
+bot.check_stream.start(stop_on_error=False)
 bot.run()
