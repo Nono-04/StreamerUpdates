@@ -71,6 +71,26 @@ class Bot(commands.Bot):
     @routines.routine(seconds=30)
     async def check_stream(self):
         streamerData = await self.fetch_channel(streamer)
+        livestreamData = (await self.fetch_streams(user_logins=[streamer]))[0]
+        if not isinstance(livestreamData, twitchio.Stream):
+            return
+
+        if oldData.get("live") is None:
+            oldData["live"] = livestreamData.type == "live"
+
+        if oldData.get("live") != (livestreamData.type == "live"):
+            if livestreamData.type == "live":
+                try:
+                    await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!\n\n{livestreamData.thumbnail_url}", 0x00ff00)
+                except:
+                    pass
+            else:
+                try:
+                    await send_embed_webhook(chatMessagesWebhook, "Stream ended", f"{streamer} is offline!", 0xff0000)
+                except:
+                    pass
+            oldData["live"] = livestreamData.type == "live"
+
 
         if oldData.get("title") is None:
             oldData["title"] = streamerData.title
