@@ -83,14 +83,16 @@ class Bot(commands.Bot):
                 await send_embed_webhook(chatMessagesWebhook, "Title changed",
                                          f"Old title: {oldData['title']}\nNew title: {streamerData.title}", 0x00ff00)
             except:
-                oldData["title"] = streamerData.title
+                pass
+            oldData["title"] = streamerData.title
 
         if oldData.get("game") != streamerData.game_name:
             try:
                 await send_embed_webhook(chatMessagesWebhook, "Game changed", f"New game: {streamerData.game_name}",
                                          0x00ff00)
             except:
-                oldData["game"] = streamerData.game_name
+                pass
+            oldData["game"] = streamerData.game_name
 
 
 bot = Bot()
