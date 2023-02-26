@@ -78,20 +78,22 @@ class Bot(commands.Bot):
                 return
 
             if oldData.get("live") is None:
-                oldData["live"] = livestreamData.type == "live"
+                oldData["live"] = livestreamData.type
 
-            if oldData.get("live") != (livestreamData.type == "live"):
+            if oldData.get("live") != livestreamData.type:
                 if livestreamData.type == "live":
                     try:
                         await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!\n\n{livestreamData.thumbnail_url}", 0x00ff00)
-                    except:
+                    except Exception as e:
+                        print(e)
                         pass
                 else:
                     try:
                         await send_embed_webhook(chatMessagesWebhook, "Stream ended", f"{streamer} is offline!", 0xff0000)
-                    except:
+                    except Exception as e:
+                        print(e)
                         pass
-                oldData["live"] = livestreamData.type == "live"
+                oldData["live"] = livestreamData.type
 
         if oldData.get("title") is None:
             oldData["title"] = streamerData.title
