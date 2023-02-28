@@ -22,14 +22,13 @@ oldData = {
     "live": None,
 }
 
-
 async def send_embed_webhook(webhook, title: str, description: str, color: int):
-    hook = AsyncDiscordWebhook(url=webhook, embeds=[{"title": title, "description": description, "color": color}])
+    hook = AsyncDiscordWebhook(url=webhook, embeds=[{"title": title, "description": description, "color": color}], rate_limit_retry=True)
     await hook.execute()
 
 
 async def send_message_webhook(webhook, message: str, username="", avatar_url: str = ""):
-    hook = AsyncDiscordWebhook(url=webhook, content=message, username=username, avatar_url=avatar_url)
+    hook = AsyncDiscordWebhook(url=webhook, content=message, username=username, avatar_url=avatar_url, rate_limit_retry=True)
     await hook.execute()
 
 
@@ -77,10 +76,12 @@ class Bot(commands.Bot):
             if not isinstance(livestreamData, twitchio.Stream):
                 return
 
-            if oldData.get("live") is None:
-                oldData["live"] = livestreamData.type
+            isCurrentlyLive = livestreamData.type == "live" and livestreamData.viewer_count > 0 and livestreamData.started_at is not None
 
-            if oldData.get("live") != livestreamData.type:
+            if oldData["live"] is None:
+                oldData["live"] = isCurrentlyLive
+
+            if oldData["live"] != isCurrentlyLive:
                 if livestreamData.type == "live":
                     try:
                         await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!\n\n{livestreamData.thumbnail_url}", 0x00ff00)
@@ -93,7 +94,7 @@ class Bot(commands.Bot):
                     except Exception as e:
                         print(e)
                         pass
-                oldData["live"] = livestreamData.type
+                oldData["live"] = isCurrentlyLive
 
         if oldData.get("title") is None:
             oldData["title"] = streamerData.title
