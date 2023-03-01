@@ -84,7 +84,8 @@ class Bot(commands.Bot):
             if oldData["live"] != isCurrentlyLive:
                 if livestreamData.type == "live":
                     try:
-                        await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!\n\n{livestreamData.thumbnail_url}", 0x00ff00)
+                        await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!", 0x00ff00)
+                        await send_message_webhook(chatMessagesWebhook, f"{livestreamData.thumbnail_url.replace('{width}', '1920').replace('{height}', '1080')}")
                     except Exception as e:
                         print(e)
                         pass
