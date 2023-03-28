@@ -8,10 +8,12 @@ from twitchio.ext import eventsub, commands, routines
 load_dotenv()
 streamer = os.getenv('STREAMER')
 streamerInChat = str(os.getenv('STREAMER_IN_CHAT')).split(',')
+friendsInChat = str(os.getenv('FRIENDS_IN_CHAT')).split(',')
 
 chatMessagesWebhook = os.getenv('CHAT_MESSAGES_WEBHOOK')
 otherStreamerWebhook = os.getenv('OTHER_STREAMERS_WEBHOOK')
 streamerInOtherChatWebhook = os.getenv('STREAMER_IN_OTHER_CHAT_WEBHOOK')
+friendsInChatWebhook = os.getenv('FRIENDS_CHAT_WEBHOOK')
 
 accessToken = "sdgf0yaagyx1umwjlbb7syh0czexb4"
 clientSecret = "8l1g01lh2go6xmeopu9ytck2tbwve4"
@@ -65,6 +67,11 @@ class Bot(commands.Bot):
             if message.author.name.lower() in streamerInChat:
                 avatar = (await message.author.user()).profile_image
                 await send_message_webhook(otherStreamerWebhook, f"{message.content}",
+                                           username=message.author.display_name, avatar_url=avatar)
+
+            elif message.author.name.lower() in friendsInChat:
+                avatar = (await message.author.user()).profile_image
+                await send_message_webhook(friendsInChatWebhook, f"{message.content}",
                                            username=message.author.display_name, avatar_url=avatar)
 
     @routines.routine(seconds=30)
