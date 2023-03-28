@@ -54,6 +54,9 @@ class Bot(commands.Bot):
         if message.echo:
             return
 
+        message.content = message.content.replace("@everyone", "@loser")
+        message.content = message.content.replace("@here", "@loser")
+
         if message.author.name.lower() == streamer.lower():
             avatar = (await message.author.user()).profile_image
             if message.channel.name.lower() == streamer.lower():
