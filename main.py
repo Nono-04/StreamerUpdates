@@ -86,7 +86,7 @@ class Bot(commands.Bot):
             if not isinstance(livestreamData, twitchio.Stream):
                 return
 
-            isCurrentlyLive = livestreamData.type == "live" and livestreamData.viewer_count > 0 and livestreamData.started_at is not None
+            isCurrentlyLive = livestreamData.type == "live" and livestreamData.started_at is not None
 
             if oldData["live"] is None:
                 oldData["live"] = isCurrentlyLive
