@@ -86,25 +86,18 @@ class Bot(commands.Bot):
             if not isinstance(livestreamData, twitchio.Stream):
                 return
 
-            isCurrentlyLive = livestreamData.type == "live" and livestreamData.started_at is not None
+            isCurrentlyLive = livestreamData.type == "live"
 
             if oldData["live"] is None:
                 oldData["live"] = isCurrentlyLive
 
             if oldData["live"] != isCurrentlyLive:
-                if livestreamData.type == "live":
-                    try:
-                        await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!", 0x00ff00)
-                        await send_message_webhook(chatMessagesWebhook, f"{livestreamData.thumbnail_url.replace('{width}', '1920').replace('{height}', '1080')}")
-                    except Exception as e:
-                        print(e)
-                        pass
-                else:
-                    try:
-                        await send_embed_webhook(chatMessagesWebhook, "Stream ended", f"{streamer} is offline!", 0xff0000)
-                    except Exception as e:
-                        print(e)
-                        pass
+                try:
+                    await send_embed_webhook(chatMessagesWebhook, "Stream started", f"{streamer} is live!", 0x00ff00)
+                    await send_message_webhook(chatMessagesWebhook, f"{livestreamData.thumbnail_url.replace('{width}', '1920').replace('{height}', '1080')}")
+               	except Exception as e:
+                	print(e)
+                    pass
                 oldData["live"] = isCurrentlyLive
 
         if oldData.get("title") is None:
