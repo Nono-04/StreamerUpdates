@@ -45,6 +45,7 @@ class Bot(commands.Bot):
     async def event_ready(self):
         # Notify us when everything is ready!
         # We are logged in and ready to chat and use commands...
+        print("started")
         print(f'Logged in as | {self.nick}')
         print(f'User id is | {self.user_id}')
         print("Joining other channels...")
